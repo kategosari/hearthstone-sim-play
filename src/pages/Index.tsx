@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GameState, Card, BoardMinion } from '@/types/game';
 import { generateDeck, playCard, attackMinion, attackHero, startTurn, makeAIMove } from '@/utils/gameLogic';
 import { PlayerArea } from '@/components/game/PlayerArea';
 import { GameBoard } from '@/components/game/GameBoard';
 import { PlayerHand } from '@/components/game/PlayerHand';
 import { GameOverScreen } from '@/components/game/GameOverScreen';
+import { AttackingCard } from '@/components/game/AttackingCard';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -37,6 +38,32 @@ const Index = () => {
   const [attackingMinionId, setAttackingMinionId] = useState<string | null>(null);
   const [targetMinionId, setTargetMinionId] = useState<string | null>(null);
   const [damageMap, setDamageMap] = useState<Map<string, number>>(new Map());
+  
+  // Track card positions for collision animation
+  const minionRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [attackAnimation, setAttackAnimation] = useState<{
+    attacker: BoardMinion;
+    startPos: { x: number; y: number };
+    targetPos: { x: number; y: number };
+    damage: number;
+  } | null>(null);
+
+  
+  const setMinionRef = (id: string, element: HTMLDivElement | null) => {
+    if (element) {
+      minionRefs.current.set(id, element);
+    } else {
+      minionRefs.current.delete(id);
+    }
+  };
+
+  const getCardPosition = (element: HTMLDivElement): { x: number; y: number } => {
+    const rect = element.getBoundingClientRect();
+    return {
+      x: rect.left,
+      y: rect.top,
+    };
+  };
 
   // Check for game over
   useEffect(() => {
@@ -104,38 +131,51 @@ const Index = () => {
   const handleEnemyMinionClick = (target: BoardMinion) => {
     if (!selectedMinion || targetMode !== 'minion' || gameState.phase !== 'player-turn') return;
 
-    // Trigger attack animation
-    setAttackingMinionId(selectedMinion.id);
-    setTargetMinionId(target.id);
+    const attackerElement = minionRefs.current.get(selectedMinion.id);
+    const targetElement = minionRefs.current.get(target.id);
 
-    setTimeout(() => {
+    if (!attackerElement || !targetElement) {
+      // Fallback if positions not found
       const result = attackMinion(selectedMinion, target, gameState.player, gameState.enemy);
-      
-      // Show damage numbers
-      const newDamageMap = new Map(damageMap);
-      newDamageMap.set(target.id, selectedMinion.attack);
-      if (target.attack > 0) {
-        newDamageMap.set(selectedMinion.id, target.attack);
-      }
-      setDamageMap(newDamageMap);
-      
       setGameState(prev => ({
         ...prev,
         player: result.attacker,
         enemy: result.defender,
       }));
-
       toast.success(`${selectedMinion.name} attacks ${target.name}!`);
-      
-      // Clear animations
-      setTimeout(() => {
-        setAttackingMinionId(null);
-        setTargetMinionId(null);
-      }, 300);
-    }, 300);
+      setSelectedMinion(null);
+      setTargetMode(null);
+      return;
+    }
+
+    const startPos = getCardPosition(attackerElement);
+    const targetPos = getCardPosition(targetElement);
+
+    // Start attack animation
+    setAttackAnimation({
+      attacker: selectedMinion,
+      startPos,
+      targetPos,
+      damage: selectedMinion.attack,
+    });
+    setTargetMinionId(target.id);
+
+    // Store for after animation
+    const attackData = { selectedMinion, target };
 
     setSelectedMinion(null);
     setTargetMode(null);
+
+    // Apply damage after animation completes
+    setTimeout(() => {
+      const result = attackMinion(attackData.selectedMinion, attackData.target, gameState.player, gameState.enemy);
+      setGameState(prev => ({
+        ...prev,
+        player: result.attacker,
+        enemy: result.defender,
+      }));
+      toast.success(`${attackData.selectedMinion.name} attacks ${attackData.target.name}!`);
+    }, 550);
   };
 
   const handleEnemyHeroClick = () => {
@@ -167,6 +207,9 @@ const Index = () => {
     setSelectedMinion(null);
     setTargetMode(null);
     setDamageMap(new Map());
+    setAttackAnimation(null);
+    setAttackingMinionId(null);
+    setTargetMinionId(null);
   };
 
   const handleEndTurn = () => {
@@ -208,7 +251,21 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-game-board p-4 flex flex-col">
+    <div className="min-h-screen bg-game-board p-4 flex flex-col relative">
+      {/* Attack Animation Overlay */}
+      {attackAnimation && (
+        <AttackingCard
+          attacker={attackAnimation.attacker}
+          startPos={attackAnimation.startPos}
+          targetPos={attackAnimation.targetPos}
+          damageDealt={attackAnimation.damage}
+          onComplete={() => {
+            setAttackAnimation(null);
+            setTargetMinionId(null);
+          }}
+        />
+      )}
+
       {/* Game Over Screen */}
       {gameState.winner && (
         <GameOverScreen winner={gameState.winner} onRestart={handleRestart} />
@@ -255,6 +312,7 @@ const Index = () => {
           attackingMinionId={attackingMinionId}
           targetMinionId={targetMinionId}
           damageMap={damageMap}
+          onMinionPositionRef={setMinionRef}
         />
       </div>
 
@@ -271,6 +329,7 @@ const Index = () => {
           attackingMinionId={attackingMinionId}
           targetMinionId={targetMinionId}
           damageMap={damageMap}
+          onMinionPositionRef={setMinionRef}
         />
       </div>
 

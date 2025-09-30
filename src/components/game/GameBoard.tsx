@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { BoardMinion } from '@/types/game';
 import { GameCard } from './GameCard';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ interface GameBoardProps {
   attackingMinionId?: string;
   targetMinionId?: string;
   damageMap?: Map<string, number>;
+  onMinionPositionRef?: (id: string, element: HTMLDivElement | null) => void;
 }
 
 export const GameBoard = ({ 
@@ -22,6 +24,7 @@ export const GameBoard = ({
   attackingMinionId,
   targetMinionId,
   damageMap,
+  onMinionPositionRef,
 }: GameBoardProps) => {
   return (
     <div className={cn(
@@ -34,19 +37,22 @@ export const GameBoard = ({
             {isEnemy ? 'Enemy board is empty' : 'Your board is empty - play some cards!'}
           </div>
         ) : (
-          minions.map((minion) => (
-            <GameCard
-              key={minion.id}
-              card={minion}
-              onClick={() => onMinionClick?.(minion)}
-              isSelected={selectedMinionId === minion.id}
-              canAttack={canAttack && minion.canAttack && !minion.hasAttacked}
-              isAttacking={attackingMinionId === minion.id}
-              isBeingAttacked={targetMinionId === minion.id}
-              damageDealt={damageMap?.get(minion.id)}
-              isEnemy={isEnemy}
-            />
-          ))
+          minions.map((minion) => {
+            const isAttacker = attackingMinionId === minion.id;
+            return (
+              <GameCard
+                key={minion.id}
+                ref={(el) => onMinionPositionRef?.(minion.id, el)}
+                card={minion}
+                onClick={() => onMinionClick?.(minion)}
+                isSelected={selectedMinionId === minion.id}
+                canAttack={canAttack && minion.canAttack && !minion.hasAttacked}
+                isBeingAttacked={targetMinionId === minion.id}
+                isEnemy={isEnemy}
+                isHidden={isAttacker}
+              />
+            );
+          })
         )}
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { Card, BoardMinion } from '@/types/game';
 import { Swords, Heart, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
+import { forwardRef } from 'react';
 
 interface GameCardProps {
   card: Card | BoardMinion;
@@ -14,9 +14,10 @@ interface GameCardProps {
   isBeingAttacked?: boolean;
   damageDealt?: number;
   isEnemy?: boolean;
+  isHidden?: boolean;
 }
 
-export const GameCard = ({ 
+export const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({ 
   card, 
   onClick, 
   isPlayable = false, 
@@ -27,20 +28,13 @@ export const GameCard = ({
   isBeingAttacked = false,
   damageDealt,
   isEnemy = false,
-}: GameCardProps) => {
+  isHidden = false,
+}, ref) => {
   const boardMinion = 'canAttack' in card ? card : null;
-  const [showDamage, setShowDamage] = useState(false);
-
-  useEffect(() => {
-    if (damageDealt && damageDealt > 0) {
-      setShowDamage(true);
-      const timer = setTimeout(() => setShowDamage(false), 800);
-      return () => clearTimeout(timer);
-    }
-  }, [damageDealt]);
   
   return (
     <div
+      ref={ref}
       onClick={onClick}
       className={cn(
         "relative w-28 h-36 rounded-lg border-2 transition-all duration-300 cursor-pointer",
@@ -50,18 +44,10 @@ export const GameCard = ({
         !isPlayable && !canAttack && onClick && "opacity-60 cursor-not-allowed",
         canAttack && "border-game-attack hover:animate-glow-pulse",
         isInHand && "hover:-translate-y-2",
-        isAttacking && (isEnemy ? "animate-attack-down" : "animate-attack-forward"),
-        isBeingAttacked && "animate-shake"
+        isBeingAttacked && "animate-shake",
+        isHidden && "opacity-0"
       )}
     >
-      {/* Damage Number */}
-      {showDamage && damageDealt && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
-          <span className="text-4xl font-bold text-destructive animate-damage-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-            -{damageDealt}
-          </span>
-        </div>
-      )}
       {/* Mana Cost */}
       <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-game-mana flex items-center justify-center font-bold text-foreground shadow-lg border-2 border-primary z-10">
         {card.cost}
@@ -100,4 +86,7 @@ export const GameCard = ({
       )}
     </div>
   );
-};
+});
+
+GameCard.displayName = 'GameCard';
+
