@@ -12,7 +12,7 @@ export const PlayerHand = ({ cards, onCardClick, playerMana }: PlayerHandProps) 
     <div className="p-6 bg-game-player rounded-t-lg border-t-2 border-x-2 border-accent shadow-lg">
       <div className="flex justify-center items-end gap-3 flex-wrap">
         {cards.length === 0 ? (
-          <div className="text-muted-foreground text-sm py-4">Your hand is empty</div>
+          <div className="text-muted-foreground text-sm py-4">손패가 비었습니다</div>
         ) : (
           cards.map((card) => {
             const isPlayable = card.cost <= playerMana;

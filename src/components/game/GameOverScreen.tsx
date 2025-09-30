@@ -21,13 +21,13 @@ export const GameOverScreen = ({ winner, onRestart }: GameOverScreenProps) => {
         </div>
 
         <h1 className="text-4xl font-bold mb-4 text-foreground">
-          {isVictory ? 'Victory!' : 'Defeat'}
+          {isVictory ? '승리!' : '패배ㅠ'}
         </h1>
 
         <p className="text-lg text-muted-foreground mb-8">
           {isVictory 
-            ? 'You have defeated your opponent!' 
-            : 'Your opponent has bested you in combat.'}
+            ? '상대방을 물리쳤습니다!' 
+            : '당신이 패배하였습니다.'}
         </p>
 
         <Button 
@@ -35,7 +35,7 @@ export const GameOverScreen = ({ winner, onRestart }: GameOverScreenProps) => {
           size="lg"
           className="bg-gradient-magic hover:opacity-90 transition-opacity text-lg px-8"
         >
-          Play Again
+          다시 하기
         </Button>
       </div>
     </div>

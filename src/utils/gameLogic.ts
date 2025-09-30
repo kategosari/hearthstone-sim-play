@@ -1,14 +1,14 @@
 import { Card, Player, BoardMinion } from '@/types/game';
 
 const cardDatabase: Card[] = [
-  { id: '1', name: 'Warrior', cost: 1, attack: 2, health: 1, maxHealth: 1 },
-  { id: '2', name: 'Knight', cost: 2, attack: 3, health: 2, maxHealth: 2 },
-  { id: '3', name: 'Mage', cost: 3, attack: 2, health: 4, maxHealth: 4 },
-  { id: '4', name: 'Dragon', cost: 4, attack: 4, health: 4, maxHealth: 4 },
-  { id: '5', name: 'Guardian', cost: 2, attack: 1, health: 4, maxHealth: 4 },
-  { id: '6', name: 'Archer', cost: 3, attack: 4, health: 2, maxHealth: 2 },
-  { id: '7', name: 'Paladin', cost: 4, attack: 3, health: 5, maxHealth: 5 },
-  { id: '8', name: 'Assassin', cost: 3, attack: 5, health: 1, maxHealth: 1 },
+  { id: '1', name: '전사', cost: 1, attack: 2, health: 1, maxHealth: 1 , image: '/img/불.png'},
+  { id: '2', name: '기사', cost: 2, attack: 3, health: 2, maxHealth: 2 },
+  { id: '3', name: '마법사', cost: 3, attack: 2, health: 4, maxHealth: 4 },
+  { id: '4', name: '드래곤', cost: 4, attack: 4, health: 4, maxHealth: 4 },
+  { id: '5', name: '가디언', cost: 2, attack: 1, health: 4, maxHealth: 4 },
+  { id: '6', name: '궁수', cost: 3, attack: 4, health: 2, maxHealth: 2 },
+  { id: '7', name: '성기사', cost: 4, attack: 3, health: 5, maxHealth: 5 },
+  { id: '8', name: '암살자', cost: 3, attack: 5, health: 1, maxHealth: 1 },
 ];
 
 export const generateDeck = (count: number): Card[] => {

@@ -34,7 +34,7 @@ export const GameBoard = ({
       <div className="flex justify-center items-center gap-3 flex-wrap">
         {minions.length === 0 ? (
           <div className="text-muted-foreground text-sm py-8">
-            {isEnemy ? 'Enemy board is empty' : 'Your board is empty - play some cards!'}
+            {isEnemy ? '적의 보드가 비어있습니다' : '당신의 보드가 비어있습니다 - 카드를 내보세요!'}
           </div>
         ) : (
           minions.map((minion) => {

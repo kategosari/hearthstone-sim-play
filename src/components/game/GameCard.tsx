@@ -60,7 +60,12 @@ export const GameCard = forwardRef<HTMLDivElement, GameCardProps>(({
 
       {/* Card Image/Icon */}
       <div className="flex-1 flex items-center justify-center p-2">
-        <Sparkles className="w-12 h-12 text-primary" />
+        {/* <Sparkles className="w-12 h-12 text-primary" /> */}
+        {card.image ? (
+    <img src={card.image} alt={card.name} className="w-12 h-12 object-contain" />
+  ) : (
+    <Sparkles className="w-12 h-12 text-primary" />
+  )}
       </div>
 
       {/* Stats */}

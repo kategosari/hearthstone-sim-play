@@ -96,7 +96,7 @@ const Index = () => {
               player: newPlayer,
               phase: 'player-turn',
             }));
-            toast.info('Your turn!');
+            toast.info('당신의 차례입니다!');
           }
         }, 1000);
       }, 1500);
@@ -115,7 +115,7 @@ const Index = () => {
     }
 
     setGameState(prev => ({ ...prev, player: newPlayer }));
-    toast.success(`Played ${card.name}!`);
+    toast.success(`${card.name} 카드를 내셨습니다!`);
   };
 
   const handlePlayerMinionClick = (minion: BoardMinion) => {
@@ -124,7 +124,7 @@ const Index = () => {
     if (minion.canAttack && !minion.hasAttacked) {
       setSelectedMinion(minion);
       setTargetMode(gameState.enemy.board.length > 0 ? 'minion' : 'hero');
-      toast.info('Select a target to attack!');
+      toast.info('공격할 대상을 선택해주새요!');
     }
   };
 
@@ -174,14 +174,14 @@ const Index = () => {
         player: result.attacker,
         enemy: result.defender,
       }));
-      toast.success(`${attackData.selectedMinion.name} attacks ${attackData.target.name}!`);
+      toast.success(`${attackData.selectedMinion.name}가 ${attackData.target.name}를 공격하였습니다!`);
     }, 550);
   };
 
   const handleEnemyHeroClick = () => {
     if (!selectedMinion || gameState.phase !== 'player-turn') return;
     if (gameState.enemy.board.length > 0 && targetMode === 'minion') {
-      toast.error('You must attack enemy minions first!');
+      toast.error('보드의 상대 카드를 먼저 공격하셔야합니다!');
       return;
     }
 
@@ -220,7 +220,7 @@ const Index = () => {
     const newEnemy = startTurn(gameState.enemy);
     setGameState(prev => ({ ...prev, enemy: newEnemy }));
     
-    toast.info("Enemy's turn...");
+    toast.info("상대 차례 입니다");
   };
 
   const handleRestart = () => {
@@ -274,7 +274,7 @@ const Index = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-3xl font-bold text-foreground bg-gradient-magic bg-clip-text text-transparent">
-          Card Battle Arena
+          Orange Flaver Allstar
         </h1>
         <div className="flex gap-2">
           <Button
@@ -282,14 +282,14 @@ const Index = () => {
             variant="outline"
             className="border-border hover:bg-muted"
           >
-            New Game
+            새로운 게임
           </Button>
           <Button
             onClick={handleEndTurn}
             disabled={gameState.phase !== 'player-turn'}
             className="bg-gradient-gold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            End Turn
+            턴 넘기기
           </Button>
         </div>
       </div>
