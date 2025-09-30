@@ -34,6 +34,9 @@ const Index = () => {
 
   const [selectedMinion, setSelectedMinion] = useState<BoardMinion | null>(null);
   const [targetMode, setTargetMode] = useState<'minion' | 'hero' | null>(null);
+  const [attackingMinionId, setAttackingMinionId] = useState<string | null>(null);
+  const [targetMinionId, setTargetMinionId] = useState<string | null>(null);
+  const [damageMap, setDamageMap] = useState<Map<string, number>>(new Map());
 
   // Check for game over
   useEffect(() => {
@@ -101,14 +104,36 @@ const Index = () => {
   const handleEnemyMinionClick = (target: BoardMinion) => {
     if (!selectedMinion || targetMode !== 'minion' || gameState.phase !== 'player-turn') return;
 
-    const result = attackMinion(selectedMinion, target, gameState.player, gameState.enemy);
-    setGameState(prev => ({
-      ...prev,
-      player: result.attacker,
-      enemy: result.defender,
-    }));
+    // Trigger attack animation
+    setAttackingMinionId(selectedMinion.id);
+    setTargetMinionId(target.id);
 
-    toast.success(`${selectedMinion.name} attacks ${target.name}!`);
+    setTimeout(() => {
+      const result = attackMinion(selectedMinion, target, gameState.player, gameState.enemy);
+      
+      // Show damage numbers
+      const newDamageMap = new Map(damageMap);
+      newDamageMap.set(target.id, selectedMinion.attack);
+      if (target.attack > 0) {
+        newDamageMap.set(selectedMinion.id, target.attack);
+      }
+      setDamageMap(newDamageMap);
+      
+      setGameState(prev => ({
+        ...prev,
+        player: result.attacker,
+        enemy: result.defender,
+      }));
+
+      toast.success(`${selectedMinion.name} attacks ${target.name}!`);
+      
+      // Clear animations
+      setTimeout(() => {
+        setAttackingMinionId(null);
+        setTargetMinionId(null);
+      }, 300);
+    }, 300);
+
     setSelectedMinion(null);
     setTargetMode(null);
   };
@@ -120,16 +145,28 @@ const Index = () => {
       return;
     }
 
-    const result = attackHero(selectedMinion, gameState.player, gameState.enemy);
-    setGameState(prev => ({
-      ...prev,
-      player: result.attacker,
-      enemy: result.defender,
-    }));
+    // Trigger attack animation
+    setAttackingMinionId(selectedMinion.id);
 
-    toast.success(`${selectedMinion.name} attacks the enemy hero!`);
+    setTimeout(() => {
+      const result = attackHero(selectedMinion, gameState.player, gameState.enemy);
+      setGameState(prev => ({
+        ...prev,
+        player: result.attacker,
+        enemy: result.defender,
+      }));
+
+      toast.success(`${selectedMinion.name} attacks the enemy hero for ${selectedMinion.attack} damage!`);
+      
+      // Clear animations
+      setTimeout(() => {
+        setAttackingMinionId(null);
+      }, 300);
+    }, 300);
+
     setSelectedMinion(null);
     setTargetMode(null);
+    setDamageMap(new Map());
   };
 
   const handleEndTurn = () => {
@@ -215,6 +252,9 @@ const Index = () => {
           selectedMinionId={selectedMinion?.id}
           isEnemy
           canAttack={false}
+          attackingMinionId={attackingMinionId}
+          targetMinionId={targetMinionId}
+          damageMap={damageMap}
         />
       </div>
 
@@ -228,6 +268,9 @@ const Index = () => {
           onMinionClick={handlePlayerMinionClick}
           selectedMinionId={selectedMinion?.id}
           canAttack={gameState.phase === 'player-turn'}
+          attackingMinionId={attackingMinionId}
+          targetMinionId={targetMinionId}
+          damageMap={damageMap}
         />
       </div>
 

@@ -100,12 +100,63 @@ export default {
             transform: "translateY(-10px)",
           },
         },
+        "attack-forward": {
+          "0%": {
+            transform: "translateY(0) scale(1)",
+          },
+          "50%": {
+            transform: "translateY(-40px) scale(1.1)",
+          },
+          "100%": {
+            transform: "translateY(0) scale(1)",
+          },
+        },
+        "attack-down": {
+          "0%": {
+            transform: "translateY(0) scale(1)",
+          },
+          "50%": {
+            transform: "translateY(40px) scale(1.1)",
+          },
+          "100%": {
+            transform: "translateY(0) scale(1)",
+          },
+        },
+        "shake": {
+          "0%, 100%": {
+            transform: "translateX(0)",
+          },
+          "25%": {
+            transform: "translateX(-8px)",
+          },
+          "75%": {
+            transform: "translateX(8px)",
+          },
+        },
+        "damage-pop": {
+          "0%": {
+            transform: "translateY(0) scale(0.5)",
+            opacity: "0",
+          },
+          "50%": {
+            transform: "translateY(-30px) scale(1.2)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(-60px) scale(0.8)",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
+        "attack-forward": "attack-forward 0.6s ease-in-out",
+        "attack-down": "attack-down 0.6s ease-in-out",
+        "shake": "shake 0.3s ease-in-out",
+        "damage-pop": "damage-pop 0.8s ease-out forwards",
       },
     },
   },

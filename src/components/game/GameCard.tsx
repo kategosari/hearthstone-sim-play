@@ -1,6 +1,7 @@
 import { Card, BoardMinion } from '@/types/game';
 import { Swords, Heart, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
 
 interface GameCardProps {
   card: Card | BoardMinion;
@@ -9,6 +10,10 @@ interface GameCardProps {
   isSelected?: boolean;
   isInHand?: boolean;
   canAttack?: boolean;
+  isAttacking?: boolean;
+  isBeingAttacked?: boolean;
+  damageDealt?: number;
+  isEnemy?: boolean;
 }
 
 export const GameCard = ({ 
@@ -18,8 +23,21 @@ export const GameCard = ({
   isSelected = false,
   isInHand = false,
   canAttack = false,
+  isAttacking = false,
+  isBeingAttacked = false,
+  damageDealt,
+  isEnemy = false,
 }: GameCardProps) => {
   const boardMinion = 'canAttack' in card ? card : null;
+  const [showDamage, setShowDamage] = useState(false);
+
+  useEffect(() => {
+    if (damageDealt && damageDealt > 0) {
+      setShowDamage(true);
+      const timer = setTimeout(() => setShowDamage(false), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [damageDealt]);
   
   return (
     <div
@@ -31,9 +49,19 @@ export const GameCard = ({
         isSelected && "scale-105 border-secondary shadow-lg shadow-secondary/50",
         !isPlayable && !canAttack && onClick && "opacity-60 cursor-not-allowed",
         canAttack && "border-game-attack hover:animate-glow-pulse",
-        isInHand && "hover:-translate-y-2"
+        isInHand && "hover:-translate-y-2",
+        isAttacking && (isEnemy ? "animate-attack-down" : "animate-attack-forward"),
+        isBeingAttacked && "animate-shake"
       )}
     >
+      {/* Damage Number */}
+      {showDamage && damageDealt && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
+          <span className="text-4xl font-bold text-destructive animate-damage-pop drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+            -{damageDealt}
+          </span>
+        </div>
+      )}
       {/* Mana Cost */}
       <div className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-game-mana flex items-center justify-center font-bold text-foreground shadow-lg border-2 border-primary z-10">
         {card.cost}

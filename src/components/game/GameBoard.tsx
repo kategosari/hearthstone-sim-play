@@ -8,6 +8,9 @@ interface GameBoardProps {
   selectedMinionId?: string;
   isEnemy?: boolean;
   canAttack?: boolean;
+  attackingMinionId?: string;
+  targetMinionId?: string;
+  damageMap?: Map<string, number>;
 }
 
 export const GameBoard = ({ 
@@ -16,6 +19,9 @@ export const GameBoard = ({
   selectedMinionId,
   isEnemy = false,
   canAttack = false,
+  attackingMinionId,
+  targetMinionId,
+  damageMap,
 }: GameBoardProps) => {
   return (
     <div className={cn(
@@ -35,6 +41,10 @@ export const GameBoard = ({
               onClick={() => onMinionClick?.(minion)}
               isSelected={selectedMinionId === minion.id}
               canAttack={canAttack && minion.canAttack && !minion.hasAttacked}
+              isAttacking={attackingMinionId === minion.id}
+              isBeingAttacked={targetMinionId === minion.id}
+              damageDealt={damageMap?.get(minion.id)}
+              isEnemy={isEnemy}
             />
           ))
         )}
