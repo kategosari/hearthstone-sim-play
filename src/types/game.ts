@@ -5,6 +5,7 @@ export interface Card {
   attack: number;
   health: number;
   maxHealth: number;
+  attribute:string;
   image?: string;
 }
 
@@ -30,4 +31,6 @@ export interface GameState {
   enemy: Player;
   phase: GamePhase;
   winner: 'player' | 'enemy' | null;
+  //컴퓨터효과 넣기위해 추가한 코드
+  lastAttack?: { attackerId: string; targetId: string; targetType: 'minion' | 'hero' };
 }

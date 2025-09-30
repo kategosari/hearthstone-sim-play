@@ -15,8 +15,8 @@ const Index = () => {
       id: 'player',
       health: 30,
       maxHealth: 30,
-      mana: 1,
-      maxMana: 1,
+      mana: 4,
+      maxMana: 4,
       hand: generateDeck(4),
       board: [],
     },
@@ -72,7 +72,7 @@ const Index = () => {
       toast.error('Defeat! Your hero has fallen.');
     } else if (gameState.enemy.health <= 0) {
       setGameState(prev => ({ ...prev, phase: 'game-over', winner: 'player' }));
-      toast.success('Victory! You have defeated your opponent!');
+      toast.success('승리!! 당신이 적군을 물리쳤습니다!!!');
     }
   }, [gameState.player.health, gameState.enemy.health]);
 
@@ -80,11 +80,12 @@ const Index = () => {
   useEffect(() => {
     if (gameState.phase === 'enemy-turn' && gameState.winner === null) {
       const timer = setTimeout(() => {
-        const { ai, opponent } = makeAIMove(gameState.enemy, gameState.player);
+        const { ai, opponent, lastAttack } = makeAIMove(gameState.enemy, gameState.player);
         setGameState(prev => ({
           ...prev,
           enemy: ai,
           player: opponent,
+          lastAttack,
         }));
 
         // End AI turn after a delay
@@ -104,6 +105,52 @@ const Index = () => {
       return () => clearTimeout(timer);
     }
   }, [gameState.phase, gameState.enemy, gameState.player, gameState.winner]);
+
+  //적군이 공격하는 걸 보여주기위한 부분
+  // Handle AI turn
+useEffect(() => {
+  if (gameState.phase === 'enemy-turn' && gameState.winner === null) {
+    const timer = setTimeout(() => {
+      const { ai, opponent, lastAttack } = makeAIMove(gameState.enemy, gameState.player);
+      setGameState(prev => ({
+        ...prev,
+        enemy: ai,
+        player: opponent,
+        lastAttack, // 👈 추가
+      }));
+
+      // End AI turn after a delay
+      setTimeout(() => {
+        if (opponent.health > 0) {
+          const newPlayer = startTurn(opponent);
+          setGameState(prev => ({
+            ...prev,
+            player: newPlayer,
+            phase: 'player-turn',
+          }));
+          toast.info('당신의 차례입니다!');
+        }
+      }, 1000);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }
+}, [gameState.phase, gameState.enemy, gameState.player, gameState.winner]);
+
+// 👇 여기 추가하세요
+useEffect(() => {
+  if (gameState.lastAttack && gameState.lastAttack.targetType === 'hero') {
+    const playerElement = document.getElementById("player-area");
+    if (playerElement) {
+      playerElement.classList.add("animate-shake");
+      setTimeout(() => playerElement.classList.remove("animate-shake"), 500);
+    }
+    console.log(gameState.lastAttack)
+
+    toast.error("적이 당신을 공격했습니다!");
+  }
+}, [gameState.lastAttack]);
+//여기 위에 추가함
 
   const handlePlayCard = (card: Card) => {
     if (gameState.phase !== 'player-turn') return;
@@ -334,7 +381,7 @@ const Index = () => {
       </div>
 
       {/* Player Area */}
-      <div className="mb-4">
+      <div className="mb-4" id="player-area">
         <PlayerArea player={gameState.player} />
       </div>
 
